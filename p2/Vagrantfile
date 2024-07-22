@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# O 2 é a versão das configurações
+Vagrant.configure("2") do |config|
+  DISTRO = "debian/bookworm64"
+  USER_NAME = "vvarussa"
+  CPU_COUNT = 2
+  MEMORY_MB = 1024
+  SERVER_IP = "192.168.56.110"
+  SERVER_WORKER_IP = "192.168.56.111"
+
+  # Como usamos virtualbox, devemos seguir a doc dela https://developer.hashicorp.com/vagrant/docs/providers/virtualbox
+  config.vm.provider "virtualbox" do |v|
+    v.memory = MEMORY_MB
+    v.cpus = CPU_COUNT
+  end
+
+  config.vm.box = DISTRO
+
+  config.vm.define "#{USER_NAME}S" do |server|
+    server.vm.hostname = "#{USER_NAME}S"
+
+    server.vm.network "private_network", ip: SERVER_IP
+    server.vm.provision "file", source: "./confs", destination: "$HOME/confs"
+    server.vm.provision "shell", path: "scripts/install_config.sh"
+  end
+end
